@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import java.io.IOException
 import java.io.InputStream
+import javax.xml.parsers.DocumentBuilderFactory
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,11 +23,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        var trackpoints: List<Trackpoint>? = null
+
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback <Uri> {
             val inputStream: InputStream? = this.contentResolver.openInputStream(it)
-            val inputAsString = inputStream?.bufferedReader().use { it?.readText() }
-            Log.d("TEST",inputAsString.toString()) }
+            //val inputReader: inputStream.bufferedReader().use
+            //val inputAsString = inputStream?.bufferedReader().use { it?.readText() }
+            //Log.d("MainActivity",inputAsString.toString())
+            try {
+                val parser = XmlPullParserHandler()
+                trackpoints = parser.parse(inputStream)
+                Log.d("Parse",trackpoints!!.size.toString())
+            }
+            catch (e: IOException){
+                e.printStackTrace()
+            }
+
+            }
 
         val getContentActivity = registerForActivityResult(getContent,callBack)
 
