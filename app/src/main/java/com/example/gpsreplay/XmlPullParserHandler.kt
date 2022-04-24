@@ -16,7 +16,7 @@ class XmlPullParserHandler {
     private var trackpoint : Trackpoint? = null
     private var text : String? = null
     private var tagname : String? = null
-   // private val simpleDateFormat : SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd")
+    private var simpleDateFormat : SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 
 
    fun parse (inputStream: InputStream?) : List<Trackpoint>{
@@ -42,12 +42,12 @@ class XmlPullParserHandler {
                    XmlPullParser.TEXT -> text = parser.text
                    XmlPullParser.END_TAG -> when {
                            tagname.equals("trkpt", ignoreCase = true) -> trackpoints.add(trackpoint!!)
-                           tagname.equals("ele", ignoreCase = true) -> trackpoint!!.altitude = text!!.toDouble()  //m
-                           tagname.equals("speed", ignoreCase = true) -> trackpoint!!.speed = text!!.toDouble() //m/s
-                           tagname.equals("time",ignoreCase = true) -> {Log.d("Parse",text.toString())}
-                               //trackpoint!!.id = 1}
+                           tagname.equals("ele", ignoreCase = true) -> trackpoint!!.altitude = text!!.toDouble()
+                           tagname.equals("speed", ignoreCase = true) -> trackpoint!!.speed = text!!.toDouble()
+                           tagname.equals("time",ignoreCase = true) -> if (trackpoint != null){
+                                                                    trackpoint!!.epoch = simpleDateFormat.parse(text)
+                           }
                        }
-                   //Log.d("Parse",trackpoint.toString())
                }
                eventType = parser.next()
            }

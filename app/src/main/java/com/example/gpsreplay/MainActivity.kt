@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
                 val parser = XmlPullParserHandler()
                 trackpoints = parser.parse(inputStream)
                 Log.d("Parse",trackpoints!!.size.toString())
+                Log.d("Parse",trackpoints!!.first().epoch.toString())
             }
             catch (e: IOException){
                 e.printStackTrace()

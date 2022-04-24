@@ -1,9 +1,11 @@
 package com.example.gpsreplay
 
+import java.util.*
+
 
 class Trackpoint {
     var id : Int = 0
-    var epoch : Double = 0.0
+    var epoch : Date = Date()
     var lat : Double = 0.0
     var lon : Double = 0.0
     var speed : Double = 0.0
