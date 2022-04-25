@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import org.w3c.dom.Text
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
@@ -28,8 +29,14 @@ class MainActivity : AppCompatActivity() {
         var end_time: TextView? = null
         var duration: TextView? = null
         var current_time: TextView? = null
+        var latitude: TextView? = null
+        var longitude: TextView? = null
+        var altitude: TextView? = null
+        var speed: TextView? = null
         var startDate : Date = Date()
         var endDate : Date = Date()
+        var numOfPoints: Int = 0
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -46,9 +53,10 @@ class MainActivity : AppCompatActivity() {
                 trackpoints = parser.parse(inputStream)
                 //bar?.max = trackpoints!!.size
                 //min_txt?.text = 0.toString()
-                max_txt?.text = trackpoints!!.size.toString()
+                numOfPoints = trackpoints!!.size
+                max_txt?.text = numOfPoints.toString()
                 startDate = Date(trackpoints!![0].epoch)
-                endDate = Date(trackpoints!![trackpoints!!.size-1].epoch)
+                endDate = Date(trackpoints!![numOfPoints-1].epoch)
                 start_time?.text = startDate.toString()
                 end_time?.text = endDate.toString()
                 val millis: Long = endDate.time - startDate.time
@@ -88,10 +96,22 @@ class MainActivity : AppCompatActivity() {
         end_time.text = endDate.toString()
         duration = findViewById<TextView>(R.id.duration)
         current_time = findViewById<TextView>(R.id.current_time)
+        latitude = findViewById<TextView>(R.id.latitude)
+        longitude = findViewById<TextView>(R.id.longitude)
+        altitude = findViewById<TextView>(R.id.altitude)
+        speed = findViewById<TextView>(R.id.speed)
+
+
         button?.setOnClickListener {getContentActivity.launch("*/*")}
         seekBar?.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                current_time?.text = Date(startDate.time + (endDate.time - startDate.time)/50*p1).toString()
+                val index:Int  = (p1*(numOfPoints-1)/50).toInt()
+                current_time.text = Date(trackpoints!![index].epoch).toString()
+                latitude.text = trackpoints!![index].lat.toString()
+                longitude.text = trackpoints!![index].lon.toString()
+                altitude.text = trackpoints!![index].toft().toString()
+                speed.text = trackpoints!![index].toKts().toString()
+
             }
             override fun onStartTrackingTouch(p0: SeekBar?) {
                 //TODO("Not yet implemented")

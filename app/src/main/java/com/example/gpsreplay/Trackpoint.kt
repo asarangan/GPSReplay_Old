@@ -11,7 +11,12 @@ class Trackpoint {
     var speed : Double = 0.0
     var altitude : Double = 0.0
 
-//    override fun toString():String{
-//        return("$lat $lon $speed")
-//    }
+    fun toKts():Double{
+        return (speed*19.4384).toInt()/10.0
+    }
+
+    fun toft():Double{
+        return (altitude*32.8084).toInt()/10.0
+    }
+
 }
