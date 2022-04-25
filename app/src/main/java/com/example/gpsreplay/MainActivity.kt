@@ -3,14 +3,13 @@ package com.example.gpsreplay
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import org.w3c.dom.Text
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
@@ -22,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var button: Button? = null
+        var gpxButton: Button? = null
         var seekBar: SeekBar? = null
         var min_txt: TextView? = null
         var max_txt: TextView? = null
@@ -36,10 +35,13 @@ class MainActivity : AppCompatActivity() {
         var speed: TextView? = null
         var startDate : Date = Date()
         var endDate : Date = Date()
+        var playPauseButton : Button? = null
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
+        var sysTimeAtStart:Long = System.currentTimeMillis()
+        var play:Boolean = false
 
-        button = findViewById<Button>(R.id.btn)
+        gpxButton = findViewById<Button>(R.id.gpx_button)
         seekBar = findViewById<SeekBar>(R.id.seekBar)
         min_txt = findViewById<TextView>(R.id.min_txt)
         max_txt = findViewById<TextView>(R.id.max_txt)
@@ -53,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         longitude = findViewById<TextView>(R.id.longitude)
         altitude = findViewById<TextView>(R.id.altitude)
         speed = findViewById<TextView>(R.id.speed)
+        playPauseButton = findViewById<Button>(R.id.playPause)
 
 
         val getContent = ActivityResultContracts.GetContent()
@@ -78,10 +81,11 @@ class MainActivity : AppCompatActivity() {
                 val secs = (millis - (hours*3600+mins*60)*1000)/1000.toInt()
                 duration?.text = hours.toString()+" Hrs "+mins.toString()+" Mins "+secs.toString()+" secs"
                 current_time?.text = Date(trackpoints!![0].epoch).toString()
+                seekBar.setProgress(0)
 
-                Log.d("Parse",trackpoints!!.size.toString())
-                Log.d("Parse",trackpoints!![0].epoch.toString())
-                Log.d("Parse",trackpoints!![2].epoch?.toString())
+//                Log.d("Parse",trackpoints!!.size.toString())
+//                Log.d("Parse",trackpoints!![0].epoch.toString())
+//                Log.d("Parse",trackpoints!![2].epoch?.toString())
             }
             catch (e: IOException){
                 e.printStackTrace()
@@ -97,27 +101,44 @@ class MainActivity : AppCompatActivity() {
 //           Log.d("TEST",inputAsString.toString())
 //            }
 
-
-
-
-        button?.setOnClickListener {getContentActivity.launch("*/*")}
+        gpxButton?.setOnClickListener {getContentActivity.launch("*/*")}
         seekBar?.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                val index:Int  = (p1*(numOfPoints-1)/50).toInt()
-                current_time.text = Date(trackpoints!![index].epoch).toString()
-                latitude.text = trackpoints!![index].lat.toString()
-                longitude.text = trackpoints!![index].lon.toString()
-                altitude.text = trackpoints!![index].toft().toString()
-                speed.text = trackpoints!![index].toKts().toString()
-
+                if (numOfPoints > 0) {
+                    val index: Int = (p1 * (numOfPoints - 1) / 50).toInt()
+                    current_time.text = Date(trackpoints!![index].epoch).toString()
+                    latitude.text = trackpoints!![index].lat.toString()
+                    longitude.text = trackpoints!![index].lon.toString()
+                    altitude.text = trackpoints!![index].toft().toString()
+                    speed.text = trackpoints!![index].toKts().toString()
+                }
             }
             override fun onStartTrackingTouch(p0: SeekBar?) {
                 //TODO("Not yet implemented")
             }
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                //TODO("Not yet implemented")
+                play = false
+                playPauseButton.text = "Paused"
+                //sysTimeAtStart = System.currentTimeMillis()
             }
         })
+
+    playPauseButton?.setOnClickListener(object: View.OnClickListener{
+        override fun onClick(p0: View?) {
+            if (play) {
+                playPauseButton.text = "Paused"
+                play = false
+            }
+            else{
+                playPauseButton.text = "Playing"
+                play = true
+            }
+        }
+
+    })
+
+
+
 
 
     }

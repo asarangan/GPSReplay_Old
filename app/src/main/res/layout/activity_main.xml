@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/btn"
+        android:id="@+id/gpx_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
@@ -46,7 +46,7 @@
         android:layout_marginTop="29dp"
         android:text="Start Time: "
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn" />
+        app:layout_constraintTop_toBottomOf="@+id/gpx_button" />
 
     <SeekBar
         android:id="@+id/seekBar"
@@ -68,7 +68,7 @@
         android:layout_marginTop="29dp"
         android:text="0"
         app:layout_constraintStart_toEndOf="@+id/TextView"
-        app:layout_constraintTop_toBottomOf="@+id/btn" />
+        app:layout_constraintTop_toBottomOf="@+id/gpx_button" />
 
     <TextView
         android:id="@+id/textView7"
@@ -206,6 +206,15 @@
         app:layout_constraintStart_toStartOf="@+id/altitude"
         app:layout_constraintTop_toBottomOf="@+id/altitude" />
 
+    <Button
+        android:id="@+id/playPause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="Paused"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
