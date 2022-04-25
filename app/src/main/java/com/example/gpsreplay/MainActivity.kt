@@ -19,7 +19,8 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("TEST","start")
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         var button: Button? = null
         var seekBar: SeekBar? = null
@@ -36,11 +37,23 @@ class MainActivity : AppCompatActivity() {
         var startDate : Date = Date()
         var endDate : Date = Date()
         var numOfPoints: Int = 0
-
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
         var trackpoints: List<Trackpoint>? = null
+
+        button = findViewById<Button>(R.id.btn)
+        seekBar = findViewById<SeekBar>(R.id.seekBar)
+        min_txt = findViewById<TextView>(R.id.min_txt)
+        max_txt = findViewById<TextView>(R.id.max_txt)
+        start_time = findViewById<TextView>(R.id.start_time)
+        start_time.text = startDate.toString()
+        end_time = findViewById<TextView>(R.id.end_time)
+        end_time.text = endDate.toString()
+        duration = findViewById<TextView>(R.id.duration)
+        current_time = findViewById<TextView>(R.id.current_time)
+        latitude = findViewById<TextView>(R.id.latitude)
+        longitude = findViewById<TextView>(R.id.longitude)
+        altitude = findViewById<TextView>(R.id.altitude)
+        speed = findViewById<TextView>(R.id.speed)
+
 
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback <Uri> {
@@ -69,12 +82,10 @@ class MainActivity : AppCompatActivity() {
                 Log.d("Parse",trackpoints!!.size.toString())
                 Log.d("Parse",trackpoints!![0].epoch.toString())
                 Log.d("Parse",trackpoints!![2].epoch?.toString())
-
             }
             catch (e: IOException){
                 e.printStackTrace()
             }
-
             }
 
         val getContentActivity = registerForActivityResult(getContent,callBack)
@@ -86,20 +97,7 @@ class MainActivity : AppCompatActivity() {
 //           Log.d("TEST",inputAsString.toString())
 //            }
 
-        button = findViewById<Button>(R.id.btn)
-        seekBar = findViewById<SeekBar>(R.id.seekBar)
-        min_txt = findViewById<TextView>(R.id.min_txt)
-        max_txt = findViewById<TextView>(R.id.max_txt)
-        start_time = findViewById<TextView>(R.id.start_time)
-        start_time.text = startDate.toString()
-        end_time = findViewById<TextView>(R.id.end_time)
-        end_time.text = endDate.toString()
-        duration = findViewById<TextView>(R.id.duration)
-        current_time = findViewById<TextView>(R.id.current_time)
-        latitude = findViewById<TextView>(R.id.latitude)
-        longitude = findViewById<TextView>(R.id.longitude)
-        altitude = findViewById<TextView>(R.id.altitude)
-        speed = findViewById<TextView>(R.id.speed)
+
 
 
         button?.setOnClickListener {getContentActivity.launch("*/*")}
