@@ -9,6 +9,8 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import java.io.InputStream
 import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class XmlPullParserHandler {
@@ -16,14 +18,12 @@ class XmlPullParserHandler {
     private var trackpoint : Trackpoint? = null
     private var text : String? = null
     private var tagname : String? = null
-    private var simpleDateFormat : SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+    private var simpleDateFormat : SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX",
+        Locale.US)
+    private var inside_trk:Boolean = false
 
 
    fun parse (inputStream: InputStream?) : List<Trackpoint>{
-
-       //val inputAsString = inputStream?.bufferedReader().use { it?.readText() }
-       //Log.d("MainActivity",inputAsString.toString())
-
        try{
            val factory = XmlPullParserFactory.newInstance()
            factory.isNamespaceAware = true
@@ -34,19 +34,17 @@ class XmlPullParserHandler {
                tagname = parser.name
                when (eventType){
                    XmlPullParser.START_TAG -> if (tagname.equals("trkpt",ignoreCase = true)){
+                       inside_trk = true
                        trackpoint = Trackpoint()
                        trackpoint!!.lat = parser.getAttributeValue(null,"lat").toDouble()
                        trackpoint!!.lon = parser.getAttributeValue(null,"lon").toDouble()
-                       //Log.d("Parse",trackpoint!!.lon.toString())
                    }
                    XmlPullParser.TEXT -> text = parser.text
                    XmlPullParser.END_TAG -> when {
-                           tagname.equals("trkpt", ignoreCase = true) -> trackpoints.add(trackpoint!!)
+                           tagname.equals("trkpt", ignoreCase = true) -> {trackpoints.add(trackpoint!!); inside_trk = false}
                            tagname.equals("ele", ignoreCase = true) -> trackpoint!!.altitude = text!!.toDouble()
                            tagname.equals("speed", ignoreCase = true) -> trackpoint!!.speed = text!!.toDouble()
-                           tagname.equals("time",ignoreCase = true) -> if (trackpoint != null){
-                                                                    trackpoint!!.epoch = simpleDateFormat.parse(text)
-                           }
+                           tagname.equals("time",ignoreCase = true) -> if (inside_trk){ trackpoint!!.epoch = simpleDateFormat.parse(text).time }
                        }
                }
                eventType = parser.next()
