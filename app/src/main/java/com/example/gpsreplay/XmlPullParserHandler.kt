@@ -1,8 +1,6 @@
 package com.example.gpsreplay
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
+import android.content.Context
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -10,10 +8,9 @@ import java.io.IOException
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
-class XmlPullParserHandler {
+class XmlPullParserHandler (context: Context){
     private val trackpoints = ArrayList<Trackpoint>()
     private var trackpoint : Trackpoint? = null
     private var text : String? = null
@@ -23,7 +20,7 @@ class XmlPullParserHandler {
     private var inside_trk:Boolean = false
 
 
-   fun parse (inputStream: InputStream?) : List<Trackpoint>{
+   fun parse (inputStream: InputStream?) : ArrayList<Trackpoint>{
        try{
            val factory = XmlPullParserFactory.newInstance()
            factory.isNamespaceAware = true
@@ -53,6 +50,8 @@ class XmlPullParserHandler {
 
        catch (e: XmlPullParserException){
            e.printStackTrace()
+          //Toast.makeText(context, "Message copied", Toast.LENGTH_LONG).show()
+
        }
        catch (e:IOException){
            e.printStackTrace()
