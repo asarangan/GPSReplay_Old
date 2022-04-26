@@ -18,6 +18,9 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
+val red:Int = Color.rgb(200,0,0)
+val green:Int = Color.rgb(0,200,0)
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -56,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         altitude = findViewById<TextView>(R.id.altitude)
         speed = findViewById<TextView>(R.id.speed)
         playPauseButton = findViewById<Button>(R.id.playPause)
-        playPauseButton.setBackgroundColor(Color.RED)
+        playPauseButton.setBackgroundColor(red)
 
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
@@ -148,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
                 play = false
                 playPauseButton.text = "Paused"
-                playPauseButton.setBackgroundColor(Color.RED)
+                playPauseButton.setBackgroundColor(red)
                 //sysTimeAtStart = System.currentTimeMillis()
                 //Toast.makeText(this@MainActivity, "test", Toast.LENGTH_LONG).show()
             }
@@ -159,11 +162,11 @@ class MainActivity : AppCompatActivity() {
                 if (play) {
                     playPauseButton.text = "Paused"
                     //playPauseButton.backgroundTintList()
-                    playPauseButton.setBackgroundColor(Color.RED)
+                    playPauseButton.setBackgroundColor(red)
                     play = false
                 } else {
                     playPauseButton.text = "Playing"
-                    playPauseButton.setBackgroundColor(Color.GREEN)
+                    playPauseButton.setBackgroundColor(green)
                     play = true
                 }
             }
