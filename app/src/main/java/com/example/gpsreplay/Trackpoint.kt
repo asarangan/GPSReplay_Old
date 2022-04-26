@@ -11,7 +11,8 @@ class Trackpoint {
     var speed : Double = 0.0
     var altitude : Double = 0.0
 
-    fun toKts():Double{
+    fun toKts():Double
+    {
         return (speed*19.4384).toInt()/10.0
     }
 

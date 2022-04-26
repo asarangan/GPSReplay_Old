@@ -25,31 +25,30 @@ class MainActivity : AppCompatActivity() {
 
         var gpxButton: Button? = null
         var seekBar: SeekBar? = null
-        var start_time: TextView? = null
-        var end_time: TextView? = null
+        var startTime: TextView? = null
+        var endTime: TextView? = null
         var duration: TextView? = null
-        var current_time: TextView? = null
+        var currentTime: TextView? = null
         var latitude: TextView? = null
         var longitude: TextView? = null
         var altitude: TextView? = null
         var speed: TextView? = null
-        var startDate: Date = Date()
-        var endDate: Date = Date()
+        var startDate: Date? = null
+        var endDate: Date? = null
         var playPauseButton: Button? = null
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
-        var a : Int = 0
         var sysTimeAtStart: Long = System.currentTimeMillis()
         var play: Boolean = false
 
         gpxButton = findViewById<Button>(R.id.gpx_button)
         seekBar = findViewById<SeekBar>(R.id.seekBar)
-        start_time = findViewById<TextView>(R.id.start_time)
-        start_time.text = startDate.toString()
-        end_time = findViewById<TextView>(R.id.end_time)
-        end_time.text = endDate.toString()
+        startTime = findViewById<TextView>(R.id.start_time)
+        startTime.text = 0.toString()
+        endTime = findViewById<TextView>(R.id.end_time)
+        endTime.text = 0.toString()
         duration = findViewById<TextView>(R.id.duration)
-        current_time = findViewById<TextView>(R.id.current_time)
+        currentTime = findViewById<TextView>(R.id.current_time)
         latitude = findViewById<TextView>(R.id.latitude)
         longitude = findViewById<TextView>(R.id.longitude)
         altitude = findViewById<TextView>(R.id.altitude)
@@ -80,27 +79,31 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                         startDate = Date(trackpoints!![0].epoch)
                         endDate = Date(trackpoints!![numOfPoints - 1].epoch)
-                        current_time?.text = Date(trackpoints!![0].epoch).toString()
+                        startTime?.text = startDate.toString()
+                        endTime?.text = endDate.toString()
+                        currentTime?.text = Date(trackpoints!![0].epoch).toString()
+                        val millis:Long  = endDate!!.time - startDate!!.time
+                        val hours:Int  = (millis / (1000 * 60 * 60)).toInt()
+                        val mins:Int = (millis / (1000 * 60) % 60).toInt()
+                        val secs:Int = ((millis - (hours * 3600 + mins * 60) * 1000) / 1000).toInt()
+                        duration?.text =
+                            hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
                     }
                     1 -> {
                         Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG).show()
-                        startDate = Date()
-                        endDate = Date()
-                        current_time?.text = 0.toString()
+                        startTime?.text = "0"
+                        endTime?.text = "0"
+                        currentTime?.text = 0.toString()
                         latitude.text = 0.toString()
                         longitude.text = 0.toString()
                         altitude.text = 0.toString()
                         speed.text = 0.toString()
+                        duration?.text = 0.toString()
                     }
                 }
-                start_time?.text = startDate.toString()
-                end_time?.text = endDate.toString()
-                val millis: Long = endDate.time - startDate.time
-                val hours: Int = (millis / (1000 * 60 * 60)).toInt()
-                val mins = (millis / (1000 * 60) % 60).toInt()
-                val secs = (millis - (hours * 3600 + mins * 60) * 1000) / 1000.toInt()
-                duration?.text =
-                    hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
+
+
+
 
                 seekBar.setProgress(0)
 
@@ -126,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (numOfPoints > 0) {
                     val index: Int = (p1 * (numOfPoints - 1) / 50).toInt()
-                    current_time.text = Date(trackpoints!![index].epoch).toString()
+                    currentTime.text = Date(trackpoints!![index].epoch).toString()
                     latitude.text = trackpoints!![index].lat.toString()
                     longitude.text = trackpoints!![index].lon.toString()
                     altitude.text = trackpoints!![index].toft().toString()
@@ -150,6 +153,7 @@ class MainActivity : AppCompatActivity() {
             override fun onClick(p0: View?) {
                 if (play) {
                     playPauseButton.text = "Paused"
+                    //playPauseButton.backgroundTintList()
                     play = false
                 } else {
                     playPauseButton.text = "Playing"
