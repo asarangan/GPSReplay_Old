@@ -25,8 +25,6 @@ class MainActivity : AppCompatActivity() {
 
         var gpxButton: Button? = null
         var seekBar: SeekBar? = null
-        var min_txt: TextView? = null
-        var max_txt: TextView? = null
         var start_time: TextView? = null
         var end_time: TextView? = null
         var duration: TextView? = null
@@ -40,13 +38,12 @@ class MainActivity : AppCompatActivity() {
         var playPauseButton: Button? = null
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
+        var a : Int = 0
         var sysTimeAtStart: Long = System.currentTimeMillis()
         var play: Boolean = false
 
         gpxButton = findViewById<Button>(R.id.gpx_button)
         seekBar = findViewById<SeekBar>(R.id.seekBar)
-        min_txt = findViewById<TextView>(R.id.min_txt)
-        max_txt = findViewById<TextView>(R.id.max_txt)
         start_time = findViewById<TextView>(R.id.start_time)
         start_time.text = startDate.toString()
         end_time = findViewById<TextView>(R.id.end_time)
@@ -66,27 +63,46 @@ class MainActivity : AppCompatActivity() {
             //val inputAsString = inputStream?.bufferedReader().use { it?.readText() }
             //Log.d("MainActivity",inputAsString.toString())
             try {
-                val parser = XmlPullParserHandler(this@MainActivity)
-                trackpoints = parser.parse(inputStream)
+                val parser = XmlPullParserHandler()
+                val pairReturn: Pair<List<Trackpoint>, Int>
+                pairReturn = parser.parse(inputStream)
+                trackpoints = pairReturn.first
+                val code: Int = pairReturn.second
+                numOfPoints = trackpoints!!.size
                 //bar?.max = trackpoints!!.size
                 //min_txt?.text = 0.toString()
-
-                numOfPoints = trackpoints!!.size
-                if (numOfPoints > 0) {
-                    max_txt?.text = numOfPoints.toString()
-                    startDate = Date(trackpoints!![0].epoch)
-                    endDate = Date(trackpoints!![numOfPoints - 1].epoch)
-                    start_time?.text = startDate.toString()
-                    end_time?.text = endDate.toString()
-                    val millis: Long = endDate.time - startDate.time
-                    val hours: Int = (millis / (1000 * 60 * 60)).toInt()
-                    val mins = (millis / (1000 * 60) % 60).toInt()
-                    val secs = (millis - (hours * 3600 + mins * 60) * 1000) / 1000.toInt()
-                    duration?.text =
-                        hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
-                    current_time?.text = Date(trackpoints!![0].epoch).toString()
-                    seekBar.setProgress(0)
+                when (code) {
+                    0 -> {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Read $numOfPoints points",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        startDate = Date(trackpoints!![0].epoch)
+                        endDate = Date(trackpoints!![numOfPoints - 1].epoch)
+                        current_time?.text = Date(trackpoints!![0].epoch).toString()
+                    }
+                    1 -> {
+                        Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG).show()
+                        startDate = Date()
+                        endDate = Date()
+                        current_time?.text = 0.toString()
+                        latitude.text = 0.toString()
+                        longitude.text = 0.toString()
+                        altitude.text = 0.toString()
+                        speed.text = 0.toString()
+                    }
                 }
+                start_time?.text = startDate.toString()
+                end_time?.text = endDate.toString()
+                val millis: Long = endDate.time - startDate.time
+                val hours: Int = (millis / (1000 * 60 * 60)).toInt()
+                val mins = (millis / (1000 * 60) % 60).toInt()
+                val secs = (millis - (hours * 3600 + mins * 60) * 1000) / 1000.toInt()
+                duration?.text =
+                    hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
+
+                seekBar.setProgress(0)
 
 //                Log.d("Parse",trackpoints!!.size.toString())
 //                Log.d("Parse",trackpoints!![0].epoch.toString())

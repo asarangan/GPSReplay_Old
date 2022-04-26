@@ -8,9 +8,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
-class XmlPullParserHandler (context: Context){
+class XmlPullParserHandler (){
     private val trackpoints = ArrayList<Trackpoint>()
     private var trackpoint : Trackpoint? = null
     private var text : String? = null
@@ -18,9 +19,10 @@ class XmlPullParserHandler (context: Context){
     private var simpleDateFormat : SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX",
         Locale.US)
     private var inside_trk:Boolean = false
+    private var code:Int = 0
 
 
-   fun parse (inputStream: InputStream?) : ArrayList<Trackpoint>{
+   fun parse (inputStream: InputStream?) : Pair<ArrayList<Trackpoint>,Int>{
        try{
            val factory = XmlPullParserFactory.newInstance()
            factory.isNamespaceAware = true
@@ -50,12 +52,15 @@ class XmlPullParserHandler (context: Context){
 
        catch (e: XmlPullParserException){
            e.printStackTrace()
+           code = 1
           //Toast.makeText(context, "Message copied", Toast.LENGTH_LONG).show()
 
        }
        catch (e:IOException){
            e.printStackTrace()
+           code = 2
        }
 
-   return trackpoints}
+ return Pair(trackpoints,code)}
+  // return trackpoints}
 }
