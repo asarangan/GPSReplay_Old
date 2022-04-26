@@ -1,6 +1,7 @@
 package com.example.gpsreplay
 
 import android.app.PendingIntent.getActivity
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import java.io.IOException
 import java.io.InputStream
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         altitude = findViewById<TextView>(R.id.altitude)
         speed = findViewById<TextView>(R.id.speed)
         playPauseButton = findViewById<Button>(R.id.playPause)
+        playPauseButton.setBackgroundColor(Color.RED)
 
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
@@ -124,6 +127,7 @@ class MainActivity : AppCompatActivity() {
 //           Log.d("TEST",inputAsString.toString())
 //            }
 
+
         gpxButton?.setOnClickListener { getContentActivity.launch("*/*") }
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
@@ -132,8 +136,8 @@ class MainActivity : AppCompatActivity() {
                     currentTime.text = Date(trackpoints!![index].epoch).toString()
                     latitude.text = trackpoints!![index].lat.toString()
                     longitude.text = trackpoints!![index].lon.toString()
-                    altitude.text = trackpoints!![index].toft().toString()
-                    speed.text = trackpoints!![index].toKts().toString()
+                    altitude.text = trackpoints!![index].altitude.toFt().toString()
+                    speed.text = trackpoints!![index].speed.toKts().toString()
                 }
             }
 
@@ -144,6 +148,7 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
                 play = false
                 playPauseButton.text = "Paused"
+                playPauseButton.setBackgroundColor(Color.RED)
                 //sysTimeAtStart = System.currentTimeMillis()
                 //Toast.makeText(this@MainActivity, "test", Toast.LENGTH_LONG).show()
             }
@@ -154,9 +159,11 @@ class MainActivity : AppCompatActivity() {
                 if (play) {
                     playPauseButton.text = "Paused"
                     //playPauseButton.backgroundTintList()
+                    playPauseButton.setBackgroundColor(Color.RED)
                     play = false
                 } else {
                     playPauseButton.text = "Playing"
+                    playPauseButton.setBackgroundColor(Color.GREEN)
                     play = true
                 }
             }
