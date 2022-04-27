@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
@@ -30,8 +29,8 @@ class MainActivity : AppCompatActivity() {
         var startTime: TextView? = null
         var endTime: TextView? = null
         var duration: TextView? = null
-        var currentTime: TextView? = null
-        var currentPoint: TextView? = null
+        var dataPointTime: TextView? = null
+        var dataPointIndex: TextView? = null
         var index: Int = 0
         var latitude: TextView? = null
         var longitude: TextView? = null
@@ -42,8 +41,8 @@ class MainActivity : AppCompatActivity() {
         var playPauseButton: Button? = null
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
-
-        var sysTimeAtStart: Long = System.currentTimeMillis()
+        var systemTimeAtPlaystart: Long = System.currentTimeMillis()
+        var deltaTime: Long = 0
         var play: Boolean = false
 
         gpxButton = findViewById<Button>(R.id.gpx_button)
@@ -53,8 +52,8 @@ class MainActivity : AppCompatActivity() {
         endTime = findViewById<TextView>(R.id.endTime)
         endTime.text = 0.toString()
         duration = findViewById<TextView>(R.id.duration)
-        currentTime = findViewById<TextView>(R.id.currentTime)
-        currentPoint = findViewById<TextView>(R.id.currentPoint)
+        dataPointTime = findViewById<TextView>(R.id.dataPointTime)
+        dataPointIndex = findViewById<TextView>(R.id.dataPointIndex)
         latitude = findViewById<TextView>(R.id.latitude)
         longitude = findViewById<TextView>(R.id.longitude)
         altitude = findViewById<TextView>(R.id.altitude)
@@ -63,8 +62,8 @@ class MainActivity : AppCompatActivity() {
         playPauseButton.setBackgroundColor(red)
 
         fun updateDatafields() {
-            currentTime.text = Date(trackpoints!![index].epoch).toString()
-            currentPoint.text = index.toString()
+            dataPointTime.text = Date(trackpoints!![index].epoch).toString()
+            dataPointIndex.text = index.toString()
             latitude.text = trackpoints!![index].lat.toString()
             longitude.text = trackpoints!![index].lon.toString()
             altitude.text = trackpoints!![index].altitude.toFt().toString()
@@ -97,8 +96,8 @@ class MainActivity : AppCompatActivity() {
                         endDate = Date(trackpoints!![numOfPoints - 1].epoch)
                         startTime?.text = startDate.toString()
                         endTime?.text = endDate.toString()
-                        currentTime?.text = Date(trackpoints!![0].epoch).toString()
-                        currentPoint?.text = 0.toString()
+                        dataPointTime?.text = Date(trackpoints!![0].epoch).toString()
+                        dataPointIndex?.text = 0.toString()
                         val millis: Long = endDate!!.time - startDate!!.time
                         val hours: Int = (millis / (1000 * 60 * 60)).toInt()
                         val mins: Int = (millis / (1000 * 60) % 60).toInt()
@@ -112,8 +111,8 @@ class MainActivity : AppCompatActivity() {
                         numOfPoints = 0
                         startTime?.text = 0.toString()
                         endTime?.text = 0.toString()
-                        currentTime?.text = 0.toString()
-                        currentPoint?.text = 0.toString()
+                        dataPointTime?.text = 0.toString()
+                        dataPointIndex?.text = 0.toString()
                         latitude.text = 0.toString()
                         longitude.text = 0.toString()
                         altitude.text = 0.toString()
@@ -151,7 +150,6 @@ class MainActivity : AppCompatActivity() {
                 play = false
                 playPauseButton.text = "Paused"
                 playPauseButton.setBackgroundColor(red)
-                //sysTimeAtStart = System.currentTimeMillis()
             }
         })
 
@@ -162,9 +160,14 @@ class MainActivity : AppCompatActivity() {
                     playPauseButton.setBackgroundColor(red)
                     play = false
                 } else {
-                    playPauseButton.text = "Playing"
-                    playPauseButton.setBackgroundColor(green)
-                    play = true
+                    if (numOfPoints > 0) {
+                        playPauseButton.text = "Playing"
+                        playPauseButton.setBackgroundColor(green)
+                        play = true
+                        systemTimeAtPlaystart = System.currentTimeMillis()
+                        deltaTime = systemTimeAtPlaystart - Date(trackpoints!![index].epoch).time
+                        //Log.d("Clock", deltaTime.toString())
+                    }
                 }
             }
         })
@@ -174,15 +177,15 @@ class MainActivity : AppCompatActivity() {
             //var delay:Long = 0
             while (true) {
                 if (play) {
-                    if (numOfPoints > 0){
-                        //delay = trackpoints!![index+1].epoch - trackpoints!![index].epoch
-                        SystemClock.sleep(1000)
-                        //Log.d("Clock",delay.toString())
+                    if (numOfPoints > 0) {
+                        while (trackpoints!![index].epoch + deltaTime < System.currentTimeMillis()) {
+                            SystemClock.sleep(100)
+                            //Log.d("Clock",delay.toString())
+                            }
                         if (play) {//We need to check play again because it might have changed during sleep
                             index += 1
                             runOnUiThread() {
-                                currentPoint.text = index.toString()
-                                updateDatafields()
+                                //updateDatafields()
                             }
                         }
                     }
