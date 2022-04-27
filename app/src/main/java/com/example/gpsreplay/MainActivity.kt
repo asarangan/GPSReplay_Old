@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
@@ -170,23 +171,26 @@ class MainActivity : AppCompatActivity() {
 
 
         Thread(Runnable {
-            while (true){
-            if (play) {
-                SystemClock.sleep(1000)
-                if ((play)&&(numOfPoints > 0)) {
-                    index += 1
-                    runOnUiThread() {
-                        currentPoint.text = index.toString()
-                        updateDatafields()
+            //var delay:Long = 0
+            while (true) {
+                if (play) {
+                    if (numOfPoints > 0){
+                        //delay = trackpoints!![index+1].epoch - trackpoints!![index].epoch
+                        SystemClock.sleep(1000)
+                        //Log.d("Clock",delay.toString())
+                        if (play) {//We need to check play again because it might have changed during sleep
+                            index += 1
+                            runOnUiThread() {
+                                currentPoint.text = index.toString()
+                                updateDatafields()
+                            }
+                        }
                     }
                 }
-            }}
+            }
 
         }).start()
-
-
     }
-
 
 
 }
