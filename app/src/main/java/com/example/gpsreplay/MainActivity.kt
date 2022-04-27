@@ -1,10 +1,9 @@
 package com.example.gpsreplay
 
-import android.app.PendingIntent.getActivity
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.os.SystemClock
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
@@ -12,14 +11,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
-
-val red:Int = Color.rgb(200,0,0)
-val green:Int = Color.rgb(0,200,0)
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,13 +22,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        val red: Int = Color.rgb(200, 0, 0)
+        val green: Int = Color.rgb(0, 200, 0)
         var gpxButton: Button? = null
         var seekBar: SeekBar? = null
         var startTime: TextView? = null
         var endTime: TextView? = null
         var duration: TextView? = null
         var currentTime: TextView? = null
+        var currentPoint: TextView? = null
+        var index: Int = 0
         var latitude: TextView? = null
         var longitude: TextView? = null
         var altitude: TextView? = null
@@ -43,23 +41,34 @@ class MainActivity : AppCompatActivity() {
         var playPauseButton: Button? = null
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
+
         var sysTimeAtStart: Long = System.currentTimeMillis()
         var play: Boolean = false
 
         gpxButton = findViewById<Button>(R.id.gpx_button)
         seekBar = findViewById<SeekBar>(R.id.seekBar)
-        startTime = findViewById<TextView>(R.id.start_time)
+        startTime = findViewById<TextView>(R.id.startTime)
         startTime.text = 0.toString()
-        endTime = findViewById<TextView>(R.id.end_time)
+        endTime = findViewById<TextView>(R.id.endTime)
         endTime.text = 0.toString()
         duration = findViewById<TextView>(R.id.duration)
-        currentTime = findViewById<TextView>(R.id.current_time)
+        currentTime = findViewById<TextView>(R.id.currentTime)
+        currentPoint = findViewById<TextView>(R.id.currentPoint)
         latitude = findViewById<TextView>(R.id.latitude)
         longitude = findViewById<TextView>(R.id.longitude)
         altitude = findViewById<TextView>(R.id.altitude)
         speed = findViewById<TextView>(R.id.speed)
         playPauseButton = findViewById<Button>(R.id.playPause)
         playPauseButton.setBackgroundColor(red)
+
+        fun updateDatafields() {
+            currentTime.text = Date(trackpoints!![index].epoch).toString()
+            currentPoint.text = index.toString()
+            latitude.text = trackpoints!![index].lat.toString()
+            longitude.text = trackpoints!![index].lon.toString()
+            altitude.text = trackpoints!![index].altitude.toFt().toString()
+            speed.text = trackpoints!![index].speed.toKts().toString()
+        }
 
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
@@ -77,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                 //bar?.max = trackpoints!!.size
                 //min_txt?.text = 0.toString()
                 when (code) {
-                    0 -> {
+                    0 -> {          //0 means the file was read successfully
                         Toast.makeText(
                             this@MainActivity,
                             "Read $numOfPoints points",
@@ -88,18 +97,22 @@ class MainActivity : AppCompatActivity() {
                         startTime?.text = startDate.toString()
                         endTime?.text = endDate.toString()
                         currentTime?.text = Date(trackpoints!![0].epoch).toString()
-                        val millis:Long  = endDate!!.time - startDate!!.time
-                        val hours:Int  = (millis / (1000 * 60 * 60)).toInt()
-                        val mins:Int = (millis / (1000 * 60) % 60).toInt()
-                        val secs:Int = ((millis - (hours * 3600 + mins * 60) * 1000) / 1000).toInt()
+                        currentPoint?.text = 0.toString()
+                        val millis: Long = endDate!!.time - startDate!!.time
+                        val hours: Int = (millis / (1000 * 60 * 60)).toInt()
+                        val mins: Int = (millis / (1000 * 60) % 60).toInt()
+                        val secs: Int =
+                            ((millis - (hours * 3600 + mins * 60) * 1000) / 1000).toInt()
                         duration?.text =
                             hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
                     }
                     1 -> {
                         Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG).show()
-                        startTime?.text = "0"
-                        endTime?.text = "0"
+                        numOfPoints = 0
+                        startTime?.text = 0.toString()
+                        endTime?.text = 0.toString()
                         currentTime?.text = 0.toString()
+                        currentPoint?.text = 0.toString()
                         latitude.text = 0.toString()
                         longitude.text = 0.toString()
                         altitude.text = 0.toString()
@@ -107,15 +120,12 @@ class MainActivity : AppCompatActivity() {
                         duration?.text = 0.toString()
                     }
                 }
-
-
-
-
+                play = false
+                playPauseButton.text = "Paused"
+                playPauseButton.setBackgroundColor(red)
                 seekBar.setProgress(0)
+                index = 0
 
-//                Log.d("Parse",trackpoints!!.size.toString())
-//                Log.d("Parse",trackpoints!![0].epoch.toString())
-//                Log.d("Parse",trackpoints!![2].epoch?.toString())
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -123,24 +133,12 @@ class MainActivity : AppCompatActivity() {
 
         val getContentActivity = registerForActivityResult(getContent, callBack)
 
-
-//            { uri: Uri ->
-//            val inputStream: InputStream? = this.contentResolver.openInputStream(uri)
-//            val inputAsString = inputStream?.bufferedReader().use { it?.readText() }
-//           Log.d("TEST",inputAsString.toString())
-//            }
-
-
         gpxButton?.setOnClickListener { getContentActivity.launch("*/*") }
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (numOfPoints > 0) {
-                    val index: Int = (p1 * (numOfPoints - 1) / 50).toInt()
-                    currentTime.text = Date(trackpoints!![index].epoch).toString()
-                    latitude.text = trackpoints!![index].lat.toString()
-                    longitude.text = trackpoints!![index].lon.toString()
-                    altitude.text = trackpoints!![index].altitude.toFt().toString()
-                    speed.text = trackpoints!![index].speed.toKts().toString()
+                    index = (p1 * (numOfPoints - 1) / 50).toInt()
+                    updateDatafields()
                 }
             }
 
@@ -153,7 +151,6 @@ class MainActivity : AppCompatActivity() {
                 playPauseButton.text = "Paused"
                 playPauseButton.setBackgroundColor(red)
                 //sysTimeAtStart = System.currentTimeMillis()
-                //Toast.makeText(this@MainActivity, "test", Toast.LENGTH_LONG).show()
             }
         })
 
@@ -161,7 +158,6 @@ class MainActivity : AppCompatActivity() {
             override fun onClick(p0: View?) {
                 if (play) {
                     playPauseButton.text = "Paused"
-                    //playPauseButton.backgroundTintList()
                     playPauseButton.setBackgroundColor(red)
                     play = false
                 } else {
@@ -172,9 +168,25 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        //Toast.makeText(this@MainActivity, "This works", Toast.LENGTH_LONG).show()
-        //Toast.makeText(MainActivity().applicationContext, "Message copied", Toast.LENGTH_LONG).show()
+
+        Thread(Runnable {
+            while (true){
+            if (play) {
+                SystemClock.sleep(1000)
+                if ((play)&&(numOfPoints > 0)) {
+                    index += 1
+                    runOnUiThread() {
+                        currentPoint.text = index.toString()
+                        updateDatafields()
+                    }
+                }
+            }}
+
+        }).start()
+
 
     }
+
+
 
 }

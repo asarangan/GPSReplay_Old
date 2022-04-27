@@ -41,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView16" />
 
     <TextView
-        android:id="@+id/start_time"
+        android:id="@+id/startTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -60,13 +60,13 @@
         app:layout_constraintTop_toBottomOf="@+id/TextView" />
 
     <TextView
-        android:id="@+id/end_time"
+        android:id="@+id/endTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="0"
-        app:layout_constraintStart_toStartOf="@+id/start_time"
-        app:layout_constraintTop_toBottomOf="@+id/start_time" />
+        app:layout_constraintStart_toStartOf="@+id/startTime"
+        app:layout_constraintTop_toBottomOf="@+id/startTime" />
 
     <TextView
         android:id="@+id/textView9"
@@ -83,8 +83,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="0"
-        app:layout_constraintStart_toStartOf="@+id/end_time"
-        app:layout_constraintTop_toBottomOf="@+id/end_time" />
+        app:layout_constraintStart_toStartOf="@+id/endTime"
+        app:layout_constraintTop_toBottomOf="@+id/endTime" />
 
 
     <View
@@ -92,6 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="2dp"
         android:layout_marginTop="15dp"
+        android:background="@color/purple_500"
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         tools:layout_editor_absoluteX="0dp" />
 
@@ -100,12 +101,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
-        android:text="Current:"
+        android:text="Point#:"
         app:layout_constraintEnd_toEndOf="@+id/textView9"
         app:layout_constraintTop_toBottomOf="@+id/view" />
 
     <TextView
-        android:id="@+id/current_time"
+        android:id="@+id/currentPoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
@@ -119,8 +120,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="Lat:"
-        app:layout_constraintEnd_toEndOf="@+id/textView11"
-        app:layout_constraintTop_toBottomOf="@+id/textView11" />
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
         android:id="@+id/textView14"
@@ -155,8 +156,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="0"
-        app:layout_constraintStart_toStartOf="@+id/current_time"
-        app:layout_constraintTop_toBottomOf="@+id/current_time" />
+        app:layout_constraintStart_toStartOf="@+id/currentTime"
+        app:layout_constraintTop_toBottomOf="@+id/currentTime" />
 
     <TextView
         android:id="@+id/longitude"
@@ -194,6 +195,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Time:"
+        app:layout_constraintEnd_toEndOf="@+id/textView11"
+        app:layout_constraintTop_toBottomOf="@+id/textView11" />
+
+    <TextView
+        android:id="@+id/currentTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="0"
+        app:layout_constraintStart_toStartOf="@+id/currentPoint"
+        app:layout_constraintTop_toBottomOf="@+id/currentPoint" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
