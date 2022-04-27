@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
@@ -36,8 +37,6 @@ class MainActivity : AppCompatActivity() {
         var longitude: TextView? = null
         var altitude: TextView? = null
         var speed: TextView? = null
-        var startDate: Date? = null
-        var endDate: Date? = null
         var playPauseButton: Button? = null
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
@@ -70,6 +69,18 @@ class MainActivity : AppCompatActivity() {
             speed.text = trackpoints!![index].speed.toKts().toString()
         }
 
+        fun pushPause(){
+            play = false
+            playPauseButton.text = "Paused"
+            playPauseButton.setBackgroundColor(red)
+        }
+
+        fun pushPlay(){
+            play = true
+            playPauseButton.text = "Playing"
+            playPauseButton.setBackgroundColor(green)
+        }
+
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
             val inputStream: InputStream? = this.contentResolver.openInputStream(it)
@@ -92,11 +103,11 @@ class MainActivity : AppCompatActivity() {
                             "Read $numOfPoints points",
                             Toast.LENGTH_LONG
                         ).show()
-                        startDate = Date(trackpoints!![0].epoch)
-                        endDate = Date(trackpoints!![numOfPoints - 1].epoch)
+                        val startDate: Date = Date(trackpoints!![0].epoch)
+                        val endDate : Date = Date(trackpoints!![numOfPoints - 1].epoch)
                         startTime?.text = startDate.toString()
                         endTime?.text = endDate.toString()
-                        dataPointTime?.text = Date(trackpoints!![0].epoch).toString()
+                        dataPointTime?.text = startDate.toString()
                         dataPointIndex?.text = 0.toString()
                         val millis: Long = endDate!!.time - startDate!!.time
                         val hours: Int = (millis / (1000 * 60 * 60)).toInt()
@@ -105,6 +116,8 @@ class MainActivity : AppCompatActivity() {
                             ((millis - (hours * 3600 + mins * 60) * 1000) / 1000).toInt()
                         duration?.text =
                             hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
+                        index = 0
+                        updateDatafields()
                     }
                     1 -> {
                         Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG).show()
@@ -120,11 +133,10 @@ class MainActivity : AppCompatActivity() {
                         duration?.text = 0.toString()
                     }
                 }
-                play = false
-                playPauseButton.text = "Paused"
-                playPauseButton.setBackgroundColor(red)
+                pushPause()
                 seekBar.setProgress(0)
                 index = 0
+
 
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -147,26 +159,20 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                play = false
-                playPauseButton.text = "Paused"
-                playPauseButton.setBackgroundColor(red)
+                pushPause()
             }
         })
 
         playPauseButton?.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
                 if (play) {
-                    playPauseButton.text = "Paused"
-                    playPauseButton.setBackgroundColor(red)
-                    play = false
+                    pushPause()
                 } else {
                     if (numOfPoints > 0) {
-                        playPauseButton.text = "Playing"
-                        playPauseButton.setBackgroundColor(green)
-                        play = true
-                        systemTimeAtPlaystart = System.currentTimeMillis()
-                        deltaTime = systemTimeAtPlaystart - Date(trackpoints!![index].epoch).time
-                        //Log.d("Clock", deltaTime.toString())
+                        pushPlay()
+                        Log.d("ClockPlay",index.toString())
+                        deltaTime = System.currentTimeMillis() - Date(trackpoints!![index].epoch).time
+                        //Log.d("Clock1", systemTimeAtPlaystart.toString())
                     }
                 }
             }
@@ -177,15 +183,18 @@ class MainActivity : AppCompatActivity() {
             //var delay:Long = 0
             while (true) {
                 if (play) {
-                    if (numOfPoints > 0) {
-                        while (trackpoints!![index].epoch + deltaTime < System.currentTimeMillis()) {
-                            SystemClock.sleep(100)
-                            //Log.d("Clock",delay.toString())
+                    if ((numOfPoints > 0)&&(index < numOfPoints-2)) {
+                        while (Date(trackpoints!![index+1].epoch).time + deltaTime > System.currentTimeMillis()) {
+                            SystemClock.sleep(1000)
+                            Log.d("Clock",index.toString())
                             }
                         if (play) {//We need to check play again because it might have changed during sleep
                             index += 1
                             runOnUiThread() {
-                                //updateDatafields()
+                                updateDatafields()
+                               //if (index == numOfPoints-1) {
+                                    //pushPause()
+                                //}
                             }
                         }
                     }
@@ -193,6 +202,10 @@ class MainActivity : AppCompatActivity() {
             }
 
         }).start()
+
+
+
+
     }
 
 
