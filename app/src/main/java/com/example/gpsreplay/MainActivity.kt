@@ -1,8 +1,13 @@
 package com.example.gpsreplay
 
+import android.app.AppOpsManager
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -81,6 +86,7 @@ class MainActivity : AppCompatActivity() {
             play = true
         }
 
+        //This is for reading the external file
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
             pause()
@@ -122,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                         index = 0
                         updateDatafields()
                     }
-                    1 -> {
+                    1 -> {  //1 means there was some error in the file
                         val toast = Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG)
                         toast.setGravity(Gravity.CENTER,0,0)
                         toast.show()
@@ -145,15 +151,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //Listener for the GPX file opener
         val getContentActivity = registerForActivityResult(getContent, callBack)
         gpxButton?.setOnClickListener { getContentActivity.launch("*/*") }
 
+        //Listener for seekbar change
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                pause()
-                if (numOfPoints > 0) {
-                    index = (p1 * (numOfPoints - 1) / 50).toInt()
-                    updateDatafields()
+                if (p2){    //If the seekbar change was caused by screen input (instead of by code)
+                    pause()     //put the system on pause
+                    if (numOfPoints > 0) {
+                        index = (p1 * (numOfPoints - 1) / 50).toInt()
+                        updateDatafields()
+                    }
                 }
             }
 
@@ -204,5 +214,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }).start()
+
+        fun isMockLocationEnabled():Boolean
+        {
+            var isMockLocation: Boolean
+            try {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    AppOpsManager opsManager = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
+                    isMockLocation = (Objects.requireNonNull(opsManager).checkOp(AppOpsManager.OPSTR_MOCK_LOCATION, android.os.Process.myUid(), BuildConfig.APPLICATION_ID)== AppOpsManager.MODE_ALLOWED);
+                } else {
+                    isMockLocation = !android.provider.Settings.Secure.getString(mContext.getContentResolver(), "mock_location").equals("0");
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return isMockLocation;
+        }
+
+        if (!isMockLocationEnabled) {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+        }
+
     }
+
 }
