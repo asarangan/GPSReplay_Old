@@ -3,6 +3,8 @@ package com.example.gpsreplay
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
@@ -97,11 +99,13 @@ class MainActivity : AppCompatActivity() {
                 //min_txt?.text = 0.toString()
                 when (code) {
                     0 -> {          //0 means the file was read successfully
-                        Toast.makeText(
+                        val toast = Toast.makeText(
                             this@MainActivity,
                             "Read $numOfPoints points",
                             Toast.LENGTH_LONG
-                        ).show()
+                        )
+                        toast.setGravity(Gravity.CENTER,0,0)
+                        toast.show()
                         val startDate: Date = Date(trackpoints!![0].epoch)
                         val endDate: Date = Date(trackpoints!![numOfPoints - 1].epoch)
                         startTime?.text = startDate.toString()
@@ -119,7 +123,9 @@ class MainActivity : AppCompatActivity() {
                         updateDatafields()
                     }
                     1 -> {
-                        Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG).show()
+                        val toast = Toast.makeText(this@MainActivity, "Invalid File", Toast.LENGTH_LONG)
+                        toast.setGravity(Gravity.CENTER,0,0)
+                        toast.show()
                         numOfPoints = 0
                         startTime?.text = 0.toString()
                         endTime?.text = 0.toString()
@@ -167,10 +173,8 @@ class MainActivity : AppCompatActivity() {
                     pause()
                 } else {
                     if (numOfPoints > 0) {
-                        //Log.d("ClockPlay",index.toString())
                         deltaTime =
                             System.currentTimeMillis() - Date(trackpoints!![index].epoch).time
-                        //Log.d("Index at deltaTime", index.toString())
                         play()
                     }
                 }
@@ -179,19 +183,19 @@ class MainActivity : AppCompatActivity() {
 
 
         Thread(Runnable {
-            //var delay:Long = 0
             while (true) {
-                if (play && (numOfPoints > 0) && (index < numOfPoints - 2)) {
+                if (play && (index == numOfPoints - 1)) {
+                    runOnUiThread() {
+                        pause()
+                    }
+                }
+                if (play && (numOfPoints > 0) && (index < numOfPoints - 1)) {
                     while (play && (Date(trackpoints!![index + 1].epoch).time + deltaTime > System.currentTimeMillis())) {
                     }
-                    if (play) {//We need to check play again because it might have changed during sleep
+                    if (play) {//We need to check play again because it might have changed during the above idle loop
                         index += 1
-                        //Log.d("Clock",index.toString()+" "+numOfPoints.toString())
                         runOnUiThread() {
                             updateDatafields()
-                            if (index == numOfPoints - 1) {
-                                pause()
-                            }
                         }
                     }
                 }
