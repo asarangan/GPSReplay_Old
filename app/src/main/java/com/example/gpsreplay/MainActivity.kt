@@ -3,8 +3,6 @@ package com.example.gpsreplay
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.SystemClock
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.SeekBar
@@ -69,20 +67,21 @@ class MainActivity : AppCompatActivity() {
             speed.text = trackpoints!![index].speed.toKts().toString()
         }
 
-        fun pushPause(){
-            play = false
+        fun pause() {
             playPauseButton.text = "Paused"
             playPauseButton.setBackgroundColor(red)
+            play = false
         }
 
-        fun pushPlay(){
-            play = true
+        fun play() {
             playPauseButton.text = "Playing"
             playPauseButton.setBackgroundColor(green)
+            play = true
         }
 
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
+            pause()
             val inputStream: InputStream? = this.contentResolver.openInputStream(it)
             //val inputReader: inputStream.bufferedReader().use
             //val inputAsString = inputStream?.bufferedReader().use { it?.readText() }
@@ -104,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                         val startDate: Date = Date(trackpoints!![0].epoch)
-                        val endDate : Date = Date(trackpoints!![numOfPoints - 1].epoch)
+                        val endDate: Date = Date(trackpoints!![numOfPoints - 1].epoch)
                         startTime?.text = startDate.toString()
                         endTime?.text = endDate.toString()
                         dataPointTime?.text = startDate.toString()
@@ -133,11 +132,8 @@ class MainActivity : AppCompatActivity() {
                         duration?.text = 0.toString()
                     }
                 }
-                pushPause()
                 seekBar.setProgress(0)
                 index = 0
-
-
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -148,9 +144,11 @@ class MainActivity : AppCompatActivity() {
         gpxButton?.setOnClickListener { getContentActivity.launch("*/*") }
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                pause()
                 if (numOfPoints > 0) {
                     index = (p1 * (numOfPoints - 1) / 50).toInt()
                     updateDatafields()
+                    //Log.d("Clock99",index.toString())
                 }
             }
 
@@ -159,20 +157,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                pushPause()
+                //TODO("Not yet implemented")
             }
         })
 
         playPauseButton?.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
                 if (play) {
-                    pushPause()
+                    pause()
                 } else {
                     if (numOfPoints > 0) {
-                        pushPlay()
-                        Log.d("ClockPlay",index.toString())
-                        deltaTime = System.currentTimeMillis() - Date(trackpoints!![index].epoch).time
-                        //Log.d("Clock1", systemTimeAtPlaystart.toString())
+                        //Log.d("ClockPlay",index.toString())
+                        deltaTime =
+                            System.currentTimeMillis() - Date(trackpoints!![index].epoch).time
+                        //Log.d("Index at deltaTime", index.toString())
+                        play()
                     }
                 }
             }
@@ -182,31 +181,21 @@ class MainActivity : AppCompatActivity() {
         Thread(Runnable {
             //var delay:Long = 0
             while (true) {
-                if (play) {
-                    if ((numOfPoints > 0)&&(index < numOfPoints-2)) {
-                        while (Date(trackpoints!![index+1].epoch).time + deltaTime > System.currentTimeMillis()) {
-                            SystemClock.sleep(1000)
-                            Log.d("Clock",index.toString())
-                            }
-                        if (play) {//We need to check play again because it might have changed during sleep
-                            index += 1
-                            runOnUiThread() {
-                                updateDatafields()
-                               if (index == numOfPoints-1) {
-                                    pushPause()
-                                }
+                if (play && (numOfPoints > 0) && (index < numOfPoints - 2)) {
+                    while (play && (Date(trackpoints!![index + 1].epoch).time + deltaTime > System.currentTimeMillis())) {
+                    }
+                    if (play) {//We need to check play again because it might have changed during sleep
+                        index += 1
+                        //Log.d("Clock",index.toString()+" "+numOfPoints.toString())
+                        runOnUiThread() {
+                            updateDatafields()
+                            if (index == numOfPoints - 1) {
+                                pause()
                             }
                         }
                     }
                 }
             }
-
         }).start()
-
-
-
-
     }
-
-
 }
