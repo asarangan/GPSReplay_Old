@@ -146,15 +146,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         val getContentActivity = registerForActivityResult(getContent, callBack)
-
         gpxButton?.setOnClickListener { getContentActivity.launch("*/*") }
-        seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+        seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 pause()
                 if (numOfPoints > 0) {
                     index = (p1 * (numOfPoints - 1) / 50).toInt()
                     updateDatafields()
-                    //Log.d("Clock99",index.toString())
                 }
             }
 
@@ -196,6 +195,10 @@ class MainActivity : AppCompatActivity() {
                         index += 1
                         runOnUiThread() {
                             updateDatafields()
+                            if ((index*50.0/numOfPoints).toInt() > ((index-1)*50.0/numOfPoints).toInt()) {
+                                //Log.d("SEEK",index.toString())
+                                seekBar.setProgress((index * 50.0 / numOfPoints).toInt())
+                            }
                         }
                     }
                 }
