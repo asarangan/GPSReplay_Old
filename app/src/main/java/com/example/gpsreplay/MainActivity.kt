@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
@@ -215,25 +216,10 @@ class MainActivity : AppCompatActivity() {
             }
         }).start()
 
-        fun isMockLocationEnabled():Boolean
-        {
-            var isMockLocation: Boolean
-            try {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    AppOpsManager opsManager = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
-                    isMockLocation = (Objects.requireNonNull(opsManager).checkOp(AppOpsManager.OPSTR_MOCK_LOCATION, android.os.Process.myUid(), BuildConfig.APPLICATION_ID)== AppOpsManager.MODE_ALLOWED);
-                } else {
-                    isMockLocation = !android.provider.Settings.Secure.getString(mContext.getContentResolver(), "mock_location").equals("0");
-                }
-            } catch (Exception e) {
-                return false;
+            if (Settings.Secure.getString(this.getContentResolver(),
+                    Settings.Secure.ALLOW_MOCK_LOCATION).equals("0")) {
+                startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
             }
-            return isMockLocation;
-        }
-
-        if (!isMockLocationEnabled) {
-            startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-        }
 
     }
 
