@@ -192,9 +192,9 @@ class MainActivity : AppCompatActivity() {
                             index += 1
                             runOnUiThread() {
                                 updateDatafields()
-                               //if (index == numOfPoints-1) {
-                                    //pushPause()
-                                //}
+                               if (index == numOfPoints-1) {
+                                    pushPause()
+                                }
                             }
                         }
                     }
