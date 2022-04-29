@@ -84,6 +84,29 @@ class MainActivity : AppCompatActivity() {
             play = true
         }
 
+        fun mockGPSdata(){
+            val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+            if (LocationManager.GPS_PROVIDER != null) {
+                locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+            }
+
+
+            locationManager.addTestProvider(
+                LocationManager.GPS_PROVIDER
+                , false, false,
+                false, false, true, true, true, ProviderProperties.POWER_USAGE_HIGH, ProviderProperties.ACCURACY_FINE
+            )
+            locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
+            val mockLocation:Location = Location(LocationManager.GPS_PROVIDER)
+            mockLocation.setLatitude(39.10888353)
+            mockLocation.setLongitude(-84.41548772)
+            mockLocation.setAltitude(10.0)
+            mockLocation.setAccuracy(5.0F)
+            mockLocation.setTime(System.currentTimeMillis())
+            mockLocation.setElapsedRealtimeNanos(System.nanoTime())
+            locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
+        }
+
         //This is for reading the external file
         val getContent = ActivityResultContracts.GetContent()
         var callBack = ActivityResultCallback<Uri> {
@@ -203,8 +226,8 @@ class MainActivity : AppCompatActivity() {
                         index += 1
                         runOnUiThread() {
                             updateDatafields()
+                            mockGPSdata()
                             if ((index*50.0/numOfPoints).toInt() > ((index-1)*50.0/numOfPoints).toInt()) {
-                                //Log.d("SEEK",index.toString())
                                 seekBar.setProgress((index * 50.0 / numOfPoints).toInt())
                             }
                         }
@@ -215,26 +238,10 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        if (LocationManager.GPS_PROVIDER != null) {
-            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
-        }
 
 
-        locationManager.addTestProvider(
-            LocationManager.GPS_PROVIDER
-        , false, false,
-            false, false, true, true, true, ProviderProperties.POWER_USAGE_HIGH, ProviderProperties.ACCURACY_FINE
-        )
-        locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
-        val mockLocation:Location = Location(LocationManager.GPS_PROVIDER)
-        mockLocation.setLatitude(39.10888353)
-        mockLocation.setLongitude(-84.41548772)
-        mockLocation.setAltitude(10.0)
-        mockLocation.setAccuracy(5.0F)
-        mockLocation.setTime(System.currentTimeMillis())
-        mockLocation.setElapsedRealtimeNanos(System.nanoTime())
-        locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
+
+
 
 //            if (Settings.Secure.getString(this.getContentResolver(),
 //                    Settings.Secure.ALLOW_MOCK_LOCATION).equals("0")) {
@@ -242,5 +249,15 @@ class MainActivity : AppCompatActivity() {
 //            }
 
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        //if (LocationManager.GPS_PROVIDER != null) {
+            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+        //}
+    }
+
+
 
 }
