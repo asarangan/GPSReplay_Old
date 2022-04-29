@@ -1,14 +1,11 @@
 package com.example.gpsreplay
 
-import android.app.AppOpsManager
-import android.content.Context
-import android.content.Intent
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationManager
+import android.location.provider.ProviderProperties
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -71,8 +68,8 @@ class MainActivity : AppCompatActivity() {
             dataPointIndex.text = index.toString()
             latitude.text = trackpoints!![index].lat.toString()
             longitude.text = trackpoints!![index].lon.toString()
-            altitude.text = trackpoints!![index].altitude.toFt().toString()
-            speed.text = trackpoints!![index].speed.toKts().toString()
+            altitude.text = trackpoints!![index].altitude.toString()
+            speed.text = trackpoints!![index].speed.toString()
         }
 
         fun pause() {
@@ -216,10 +213,33 @@ class MainActivity : AppCompatActivity() {
             }
         }).start()
 
-            if (Settings.Secure.getString(this.getContentResolver(),
-                    Settings.Secure.ALLOW_MOCK_LOCATION).equals("0")) {
-                startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-            }
+
+
+        val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        if (LocationManager.GPS_PROVIDER != null) {
+            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+        }
+
+
+        locationManager.addTestProvider(
+            LocationManager.GPS_PROVIDER
+        , false, false,
+            false, false, true, true, true, ProviderProperties.POWER_USAGE_HIGH, ProviderProperties.ACCURACY_FINE
+        )
+        locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
+        val mockLocation:Location = Location(LocationManager.GPS_PROVIDER)
+        mockLocation.setLatitude(39.10888353)
+        mockLocation.setLongitude(-84.41548772)
+        mockLocation.setAltitude(10.0)
+        mockLocation.setAccuracy(5.0F)
+        mockLocation.setTime(System.currentTimeMillis())
+        mockLocation.setElapsedRealtimeNanos(System.nanoTime())
+        locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
+
+//            if (Settings.Secure.getString(this.getContentResolver(),
+//                    Settings.Secure.ALLOW_MOCK_LOCATION).equals("0")) {
+//                startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+//            }
 
     }
 

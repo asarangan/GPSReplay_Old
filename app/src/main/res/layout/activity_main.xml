@@ -137,7 +137,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="Altitude (ft):"
+        android:text="Altitude (m):"
         app:layout_constraintEnd_toEndOf="@+id/textView14"
         app:layout_constraintTop_toBottomOf="@+id/textView14" />
 
@@ -146,7 +146,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="Speed (kt):"
+        android:text="Speed (m/s):"
         app:layout_constraintEnd_toEndOf="@+id/textView15"
         app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
