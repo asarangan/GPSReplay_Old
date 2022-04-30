@@ -20,6 +20,8 @@ import androidx.core.content.ContextCompat.getSystemService
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class MainActivity : AppCompatActivity() {
@@ -66,7 +68,6 @@ class MainActivity : AppCompatActivity() {
 
         locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
         val mockLocation:Location = Location(LocationManager.GPS_PROVIDER)
-        mockLocation.setTime(System.currentTimeMillis())
         mockLocation.setElapsedRealtimeNanos(System.nanoTime())
         mockLocation.setAccuracy(5.0F)
 
@@ -108,12 +109,13 @@ class MainActivity : AppCompatActivity() {
             play = true
         }
 
-        fun mockGPSdata(lat:Double, lon:Double, alt:Double, speed:Float, bearing:Float){
-            mockLocation.setLatitude(lat)
-            mockLocation.setLongitude(lon)
-            mockLocation.setAltitude(alt)
-            mockLocation.setSpeed(speed)
-            mockLocation.setBearing(bearing)
+        fun mockGPSdata(trackpoint:Trackpoint){
+            mockLocation.setLatitude(trackpoint.lat)
+            mockLocation.setLongitude(trackpoint.lon)
+            mockLocation.setAltitude(trackpoint.altitude)
+            mockLocation.setSpeed(trackpoint.speed)
+            mockLocation.setBearing(trackpoint.bearing)
+            mockLocation.setTime(trackpoint.epoch+deltaTime)
             locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
         }
 
@@ -239,8 +241,7 @@ class MainActivity : AppCompatActivity() {
                         index += 1
                         runOnUiThread() {
                             updateDatafields()
-                            mockGPSdata(trackpoints!![index].lat,trackpoints!![index].lon,trackpoints!![index].altitude,trackpoints!![index].speed,trackpoints!![index].bearing)
-                            Log.d("DIR",trackpoints!![index].bearing.toString())
+                            mockGPSdata(trackpoints!![index])
                             if ((index*50.0/numOfPoints).toInt() > ((index-1)*50.0/numOfPoints).toInt()) {
                                 seekBar.setProgress((index * 50.0 / numOfPoints).toInt())
                             }
@@ -259,11 +260,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         if (LocationManager.GPS_PROVIDER != null) {
             locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
         }
+        super.onDestroy()
     }
 
 

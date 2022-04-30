@@ -32,10 +32,10 @@ class XmlPullParserHandler() {
         val lat2: Double = trackpoint!!.lat.toRad()
         val lat1: Double = trackpoints[trackpoints.size - 1].lat.toRad()
         val geoField:GeomagneticField = GeomagneticField(lat1.toFloat(),lon1.toFloat(),0.0F,System.currentTimeMillis())
-        val variance = geoField.getDeclination()    //in degrees. -ve for W. -4.8 in Dayton
+        val magVar = geoField.getDeclination()    //in degrees. -ve for W. -4.8 in Dayton
         val tc =  ((atan2(
-            sin(lon1 - lon2) * cos(lat2),
-            cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon1 - lon2)
+            sin(lon2 - lon1) * cos(lat2),
+            cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
         )+2.0*PI)%(2.0*PI)).toDeg().toFloat()
         return (tc)
     }

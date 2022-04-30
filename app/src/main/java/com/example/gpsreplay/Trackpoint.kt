@@ -4,7 +4,6 @@ import kotlin.math.PI
 
 
 class Trackpoint {
-    var id : Int = 0
     var epoch : Long = 0
     var lat : Double = 0.0
     var lon : Double = 0.0
