@@ -1,5 +1,7 @@
 package com.example.gpsreplay
 
+import kotlin.math.PI
+
 
 class Trackpoint {
     var id : Int = 0
@@ -11,11 +13,18 @@ class Trackpoint {
     var bearing : Float = 0.0F
 }
 
-
-
 fun Double.toKts():Double
 {
     return (this*19.4384).toInt()/10.0
+}
+
+fun Double.toRad():Double
+{
+    return (this/180.0*PI)
+}
+fun Double.toDeg():Double
+{
+    return (this/PI*180.0)
 }
 
 fun Double.toFt():Double{

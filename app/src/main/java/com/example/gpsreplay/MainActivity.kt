@@ -6,6 +6,7 @@ import android.location.LocationManager
 import android.location.provider.ProviderProperties
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -47,9 +48,14 @@ class MainActivity : AppCompatActivity() {
         var deltaTime: Long = 0
         var play: Boolean = false
         val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-        if (LocationManager.GPS_PROVIDER != null) {
+
+        try{
             locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
         }
+        catch (e: Exception) {
+            e.printStackTrace()
+        }
+
 
         locationManager.addTestProvider(
             LocationManager.GPS_PROVIDER
@@ -102,12 +108,12 @@ class MainActivity : AppCompatActivity() {
             play = true
         }
 
-        fun mockGPSdata(lat:Double, lon:Double, alt:Double, speed:Float){
+        fun mockGPSdata(lat:Double, lon:Double, alt:Double, speed:Float, bearing:Float){
             mockLocation.setLatitude(lat)
             mockLocation.setLongitude(lon)
             mockLocation.setAltitude(alt)
             mockLocation.setSpeed(speed)
-            mockLocation.setBearing(90.0F)
+            mockLocation.setBearing(bearing)
             locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation)
         }
 
@@ -233,7 +239,8 @@ class MainActivity : AppCompatActivity() {
                         index += 1
                         runOnUiThread() {
                             updateDatafields()
-                            mockGPSdata(trackpoints!![index].lat,trackpoints!![index].lon,trackpoints!![index].altitude,trackpoints!![index].speed)
+                            mockGPSdata(trackpoints!![index].lat,trackpoints!![index].lon,trackpoints!![index].altitude,trackpoints!![index].speed,trackpoints!![index].bearing)
+                            Log.d("DIR",trackpoints!![index].bearing.toString())
                             if ((index*50.0/numOfPoints).toInt() > ((index-1)*50.0/numOfPoints).toInt()) {
                                 seekBar.setProgress((index * 50.0 / numOfPoints).toInt())
                             }

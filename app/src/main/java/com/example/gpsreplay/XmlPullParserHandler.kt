@@ -1,6 +1,7 @@
 package com.example.gpsreplay
 
-import android.content.Context
+import android.hardware.GeomagneticField
+import android.util.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
@@ -9,7 +10,7 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.sin
+import kotlin.math.*
 
 
 class XmlPullParserHandler() {
@@ -24,6 +25,21 @@ class XmlPullParserHandler() {
     private var inside_trk: Boolean = false
     private var code: Int = 0
 
+    private fun trueCourse(trackpoints: ArrayList<Trackpoint>, trackpoint: Trackpoint?): Float {
+
+        val lon2: Double = trackpoint!!.lon.toRad()
+        val lon1: Double = trackpoints[trackpoints.size - 1].lon.toRad()
+        val lat2: Double = trackpoint!!.lat.toRad()
+        val lat1: Double = trackpoints[trackpoints.size - 1].lat.toRad()
+        val geoField:GeomagneticField = GeomagneticField(lat1.toFloat(),lon1.toFloat(),0.0F,System.currentTimeMillis())
+        val variance = geoField.getDeclination()    //in degrees. -ve for W. -4.8 in Dayton
+        val tc =  ((atan2(
+            sin(lon1 - lon2) * cos(lat2),
+            cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon1 - lon2)
+        )+2.0*PI)%(2.0*PI)).toDeg().toFloat()
+        return (tc)
+    }
+
 
     fun parse(inputStream: InputStream?): Pair<ArrayList<Trackpoint>, Int> {
         try {
@@ -32,6 +48,7 @@ class XmlPullParserHandler() {
             val parser = factory.newPullParser()
             parser.setInput(inputStream, null)
             var eventType = parser.eventType
+            var tc:Float = 0.0F
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 tagname = parser.name
                 when (eventType) {
@@ -44,9 +61,12 @@ class XmlPullParserHandler() {
                     XmlPullParser.TEXT -> text = parser.text
                     XmlPullParser.END_TAG -> when {
                         tagname.equals("trkpt", ignoreCase = true) -> {
-                            //sin(trackpoint!!.lon)
-                            //   tc1=mod(atan2(sin(lon1-lon2)*cos(lat2),
-                            //           cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)), 2*pi)
+                            tc = if (trackpoints.size > 0) {
+                                trueCourse(trackpoints,trackpoint)
+                            } else{
+                                0.0F
+                            }
+                            trackpoint!!.bearing = tc
                             trackpoints.add(trackpoint!!)
                             inside_trk = false
                         }
