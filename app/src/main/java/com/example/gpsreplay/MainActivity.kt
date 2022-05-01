@@ -264,7 +264,14 @@ class MainActivity : AppCompatActivity() {
         if (LocationManager.GPS_PROVIDER != null) {
             locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
         }
+        Log.d("TEST","On Destroy Started")
         super.onDestroy()
+
+    }
+
+    override fun onStop(){
+        Log.d("TEST","On Stop Started")
+        super.onStop()
     }
 
 
