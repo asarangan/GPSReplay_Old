@@ -31,19 +31,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val red: Int = Color.rgb(200, 0, 0)
         val green: Int = Color.rgb(0, 200, 0)
-        var gpxButton: Button? = null
-        var seekBar: SeekBar? = null
-        var startTime: TextView? = null
-        var endTime: TextView? = null
-        var duration: TextView? = null
-        var dataPointTime: TextView? = null
-        var dataPointIndex: TextView? = null
+        val gpxButton: Button = findViewById<Button>(R.id.gpx_button)
+        val seekBar: SeekBar = findViewById<SeekBar>(R.id.seekBar)
+        val startTime: TextView = findViewById<TextView>(R.id.startTime)
+        startTime.text = "0"
+        val endTime: TextView = findViewById<TextView>(R.id.endTime)
+        endTime.text = "0"
+        val duration: TextView = findViewById<TextView>(R.id.duration)
+        val dataPointTime: TextView = findViewById<TextView>(R.id.dataPointTime)
+        val dataPointIndex: TextView = findViewById<TextView>(R.id.dataPointIndex)
         var index: Int = 0
-        var latitude: TextView? = null
-        var longitude: TextView? = null
-        var altitude: TextView? = null
-        var speed: TextView? = null
-        var playPauseButton: Button? = null
+        val latitude: TextView = findViewById<TextView>(R.id.latitude)
+        val longitude: TextView = findViewById<TextView>(R.id.longitude)
+        val altitude: TextView = findViewById<TextView>(R.id.altitude)
+        val speed: TextView = findViewById<TextView>(R.id.speed)
+        val playPauseButton: Button = findViewById<Button>(R.id.playPause)
+        playPauseButton.setBackgroundColor(red)
         var numOfPoints: Int = 0
         var trackpoints: List<Trackpoint>? = null
         var systemTimeAtPlaystart: Long = System.currentTimeMillis()
@@ -71,22 +74,6 @@ class MainActivity : AppCompatActivity() {
         mockLocation.setElapsedRealtimeNanos(System.nanoTime())
         mockLocation.setAccuracy(5.0F)
 
-
-        gpxButton = findViewById<Button>(R.id.gpx_button)
-        seekBar = findViewById<SeekBar>(R.id.seekBar)
-        startTime = findViewById<TextView>(R.id.startTime)
-        startTime.text = 0.toString()
-        endTime = findViewById<TextView>(R.id.endTime)
-        endTime.text = 0.toString()
-        duration = findViewById<TextView>(R.id.duration)
-        dataPointTime = findViewById<TextView>(R.id.dataPointTime)
-        dataPointIndex = findViewById<TextView>(R.id.dataPointIndex)
-        latitude = findViewById<TextView>(R.id.latitude)
-        longitude = findViewById<TextView>(R.id.longitude)
-        altitude = findViewById<TextView>(R.id.altitude)
-        speed = findViewById<TextView>(R.id.speed)
-        playPauseButton = findViewById<Button>(R.id.playPause)
-        playPauseButton.setBackgroundColor(red)
 
         fun updateDatafields() {
             dataPointTime.text = Date(trackpoints!![index].epoch).toString()
@@ -150,16 +137,16 @@ class MainActivity : AppCompatActivity() {
                         toast.show()
                         val startDate: Date = Date(trackpoints!![0].epoch)
                         val endDate: Date = Date(trackpoints!![numOfPoints - 1].epoch)
-                        startTime?.text = startDate.toString()
-                        endTime?.text = endDate.toString()
-                        dataPointTime?.text = startDate.toString()
-                        dataPointIndex?.text = 0.toString()
+                        startTime.text = startDate.toString()
+                        endTime.text = endDate.toString()
+                        dataPointTime.text = startDate.toString()
+                        dataPointIndex.text = 0.toString()
                         val millis: Long = endDate!!.time - startDate!!.time
                         val hours: Int = (millis / (1000 * 60 * 60)).toInt()
                         val mins: Int = (millis / (1000 * 60) % 60).toInt()
                         val secs: Int =
                             ((millis - (hours * 3600 + mins * 60) * 1000) / 1000).toInt()
-                        duration?.text =
+                        duration.text =
                             hours.toString() + " Hrs " + mins.toString() + " Mins " + secs.toString() + " secs"
                         index = 0
                         updateDatafields()
@@ -169,15 +156,15 @@ class MainActivity : AppCompatActivity() {
                         toast.setGravity(Gravity.CENTER,0,0)
                         toast.show()
                         numOfPoints = 0
-                        startTime?.text = 0.toString()
-                        endTime?.text = 0.toString()
-                        dataPointTime?.text = 0.toString()
-                        dataPointIndex?.text = 0.toString()
+                        startTime.text = 0.toString()
+                        endTime.text = 0.toString()
+                        dataPointTime.text = 0.toString()
+                        dataPointIndex.text = 0.toString()
                         latitude.text = 0.toString()
                         longitude.text = 0.toString()
                         altitude.text = 0.toString()
                         speed.text = 0.toString()
-                        duration?.text = 0.toString()
+                        duration.text = 0.toString()
                     }
                 }
                 seekBar.setProgress(0)
@@ -189,10 +176,10 @@ class MainActivity : AppCompatActivity() {
 
         //Listener for the GPX file opener
         val getContentActivity = registerForActivityResult(getContent, callBack)
-        gpxButton?.setOnClickListener { getContentActivity.launch("*/*") }
+        gpxButton.setOnClickListener { getContentActivity.launch("*/*") }
 
         //Listener for seekbar change
-        seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2){    //If the seekbar change was caused by screen input (instead of by code)
                     pause()     //put the system on pause
@@ -212,7 +199,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        playPauseButton?.setOnClickListener(object : View.OnClickListener {
+        playPauseButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
                 if (play) {
                     pause()
