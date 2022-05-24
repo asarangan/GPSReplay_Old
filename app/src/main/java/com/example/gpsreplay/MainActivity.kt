@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         var play: Boolean = false
         val sbPlaySpeed:SeekBar = findViewById<SeekBar>(R.id.sbPlaySpeed)
         val tvPlaySpeed:TextView = findViewById<TextView>(R.id.tvPlaySpeed)
+        var playSpeed:Int = 1
         val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
         try{
@@ -203,7 +204,8 @@ class MainActivity : AppCompatActivity() {
 
         sbPlaySpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                tvPlaySpeed.text = p1.toString()
+                playSpeed = p1+1
+                tvPlaySpeed.text = playSpeed.toString()
             }
 
             override fun onStartTrackingTouch(p0: SeekBar?) {
