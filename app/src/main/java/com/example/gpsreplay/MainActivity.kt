@@ -52,6 +52,8 @@ class MainActivity : AppCompatActivity() {
         var systemTimeAtPlaystart: Long = System.currentTimeMillis()
         var deltaTime: Long = 0
         var play: Boolean = false
+        val sbPlaySpeed:SeekBar = findViewById<SeekBar>(R.id.sbPlaySpeed)
+        val tvPlaySpeed:TextView = findViewById<TextView>(R.id.tvPlaySpeed)
         val locationManager:LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
         try{
@@ -198,6 +200,22 @@ class MainActivity : AppCompatActivity() {
                 //TODO("Not yet implemented")
             }
         })
+
+        sbPlaySpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                tvPlaySpeed.text = p1.toString()
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                //TODO("Not yet implemented")
+            }
+        })
+
+
 
         playPauseButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
